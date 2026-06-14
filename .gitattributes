@@ -1,0 +1,37 @@
+# Force GitHub to treat binary assets as opaque and prefer the feature branch copy when merging
+# Office documents
+*.xlsx binary merge=ours
+*.xlsm binary merge=ours
+*.xls binary merge=ours
+*.docx binary merge=ours
+*.doc binary merge=ours
+*.pptx binary merge=ours
+*.ppt binary merge=ours
+
+# Fonts
+*.ttf binary merge=ours
+*.otf binary merge=ours
+*.woff binary merge=ours
+*.woff2 binary merge=ours
+
+# Images and media
+*.png binary merge=ours
+*.jpg binary merge=ours
+*.jpeg binary merge=ours
+*.gif binary merge=ours
+*.bmp binary merge=ours
+*.ico binary merge=ours
+*.svg binary merge=ours
+
+# Archives and other opaque bundles
+*.zip binary merge=ours
+*.rar binary merge=ours
+*.7z binary merge=ours
+*.tar binary merge=ours
+*.gz binary merge=ours
+
+# Databases and serialized blobs
+*.db binary merge=ours
+*.sqlite binary merge=ours
+*.pkl binary merge=ours
+*.bin binary merge=ours

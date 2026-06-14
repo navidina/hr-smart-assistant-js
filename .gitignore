@@ -1,0 +1,15 @@
+# Ignore local personnel workbook to avoid binary diffs on GitHub
+plist.xlsx
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Node / Cloudflare
+node_modules/
+.wrangler/
+.dev.vars
+seed-employees.sql
+
+# IDE
+.idea/

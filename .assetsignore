@@ -1,0 +1,28 @@
+# Files excluded from the Cloudflare Pages static asset upload.
+# (Only the frontend — index.html, login.html, profile.html, vendor/, assets —
+#  should be served statically.)
+
+# Cloudflare Functions + shared TS (compiled & bundled, not served as assets)
+functions/
+lib/
+
+# Tooling / config
+tools/
+node_modules/
+package.json
+package-lock.json
+tsconfig.json
+wrangler.toml
+.assetsignore
+.dev.vars
+.dev.vars.example
+schema.sql
+seed-employees.sql
+
+# Knowledge sources, docs, env, git
+*.docx
+*.xlsx
+*.md
+.env
+.env.*
+.git/

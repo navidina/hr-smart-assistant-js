@@ -1,0 +1,6 @@
+# Copy to `.dev.vars` for local development with `wrangler pages dev`.
+# These mirror the production secrets (set those with `wrangler pages secret put`).
+# Demo username/password live in wrangler.toml [vars] (DEMO_USERNAME/DEMO_PASSWORD).
+
+JWT_SECRET="change-me-to-a-long-random-string"
+AVALAI_API_KEY=""
