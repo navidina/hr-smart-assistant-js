@@ -1,28 +1,22 @@
-// Jalali (Persian) calendar utilities ported from the original Python backend.
+// Jalali (Persian) calendar utilities.
 // All Gregorian dates are handled in UTC to avoid timezone drift.
 
 const JALALI_MONTH_LENGTHS = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
 
-export interface JDate {
-  year: number;
-  month: number;
-  day: number;
-}
-
-export function jalaliIsLeap(year: number): boolean {
+export function jalaliIsLeap(year) {
   const cycle = year - (year >= 0 ? 474 : 473);
   const mod = (cycle % 2820) + 474;
   return ((mod * 682) % 2816) < 682;
 }
 
-export function jalaliDaysInMonth(year: number, month: number): number {
+export function jalaliDaysInMonth(year, month) {
   if (month === 12) return jalaliIsLeap(year) ? 30 : 29;
   if (month >= 1 && month <= 6) return 31;
   if (month >= 7 && month <= 11) return 30;
   throw new Error(`invalid jalali month: ${month}`);
 }
 
-export function jalaliToGregorian(year: number, month: number, day: number): Date {
+export function jalaliToGregorian(year, month, day) {
   const jy = year - 979;
   const jm = month - 1;
   const jd = day - 1;
@@ -64,7 +58,7 @@ export function jalaliToGregorian(year: number, month: number, day: number): Dat
   return new Date(Date.UTC(gy, gm, gd));
 }
 
-export function gregorianToJalali(gYear: number, gMonth: number, gDay: number): JDate {
+export function gregorianToJalali(gYear, gMonth, gDay) {
   const gy = gYear - 1600;
   const gm = gMonth - 1;
   const gd = gDay - 1;
@@ -103,41 +97,41 @@ export function gregorianToJalali(gYear: number, gMonth: number, gDay: number): 
   return { year: jy, month: jm + 1, day: jDayNo + 1 };
 }
 
-export function todayJalali(now: Date = new Date()): JDate {
+export function todayJalali(now = new Date()) {
   return gregorianToJalali(now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
 }
 
-export function jToG(j: JDate): Date {
+export function jToG(j) {
   return jalaliToGregorian(j.year, j.month, j.day);
 }
 
-export function daysBetween(target: Date, base: Date): number {
+export function daysBetween(target, base) {
   const MS = 86400000;
   const t = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
   const b = Date.UTC(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate());
   return Math.round((t - b) / MS);
 }
 
-function pad(value: number, width: number): string {
+function pad(value, width) {
   return String(value).padStart(width, "0");
 }
 
-export function formatJalali(j: JDate): string {
+export function formatJalali(j) {
   return `${pad(j.year, 4)}/${pad(j.month, 2)}/${pad(j.day, 2)}`;
 }
 
-export function formatGregorian(d: Date): string {
+export function formatGregorian(d) {
   return `${pad(d.getUTCFullYear(), 4)}-${pad(d.getUTCMonth() + 1, 2)}-${pad(d.getUTCDate(), 2)}`;
 }
 
-export function compareJ(a: JDate, b: JDate): number {
+export function compareJ(a, b) {
   if (a.year !== b.year) return a.year < b.year ? -1 : 1;
   if (a.month !== b.month) return a.month < b.month ? -1 : 1;
   if (a.day !== b.day) return a.day < b.day ? -1 : 1;
   return 0;
 }
 
-export function addJalaliMonths(base: JDate, months: number): JDate {
+export function addJalaliMonths(base, months) {
   let year = base.year;
   let month = base.month + months;
   const day = base.day;
@@ -153,7 +147,7 @@ export function addJalaliMonths(base: JDate, months: number): JDate {
   return { year, month, day: Math.min(day, maxDay) };
 }
 
-export function addJalaliDays(base: JDate, days: number): JDate {
+export function addJalaliDays(base, days) {
   const g = jToG(base);
   const shifted = new Date(g.getTime() + days * 86400000);
   return gregorianToJalali(
@@ -163,13 +157,13 @@ export function addJalaliDays(base: JDate, days: number): JDate {
   );
 }
 
-export function parseJalali(value?: string | null): JDate | null {
+export function parseJalali(value) {
   if (!value) return null;
   let clean = String(value).trim();
   if (!clean) return null;
   for (const alt of ["﹨", "∕", "／", "⁄"]) clean = clean.split(alt).join("/");
   clean = clean.replace(/[-.\\ ]/g, "/");
-  const persianMap: Record<string, string> = {
+  const persianMap = {
     "۰": "0", "۱": "1", "۲": "2", "۳": "3", "۴": "4",
     "۵": "5", "۶": "6", "۷": "7", "۸": "8", "۹": "9",
   };
@@ -185,17 +179,8 @@ export function parseJalali(value?: string | null): JDate | null {
   return { year, month, day: clampedDay };
 }
 
-export interface TenureMetadata {
-  tenure_years: number;
-  tenure_months_total: number;
-  tenure_months_remainder: number;
-}
-
-export function calculateTenure(
-  hireDate?: string | null,
-  now: Date = new Date(),
-): TenureMetadata {
-  const result: TenureMetadata = {
+export function calculateTenure(hireDate, now = new Date()) {
+  const result = {
     tenure_years: 0,
     tenure_months_total: 0,
     tenure_months_remainder: 0,
@@ -214,14 +199,10 @@ export function calculateTenure(
 }
 
 /** Next annual recurrence (this year or next) of the given Jalali date's month/day. */
-export function nextAnnualOccurrence(
-  source: JDate,
-  today: JDate,
-  todayG: Date,
-): { days: number; date_jalali: string; date_gregorian: string; year: number } {
+export function nextAnnualOccurrence(source, today, todayG) {
   let year = today.year;
   let day = Math.min(source.day, jalaliDaysInMonth(year, source.month));
-  let target: JDate = { year, month: source.month, day };
+  let target = { year, month: source.month, day };
   if (compareJ(target, today) < 0) {
     year = today.year + 1;
     day = Math.min(source.day, jalaliDaysInMonth(year, source.month));

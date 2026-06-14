@@ -1,17 +1,14 @@
 // Lightweight lexical retrieval over the bundled knowledge base.
-// No embeddings required — runs fine on the Workers runtime. Good enough for a
-// small, mostly-static corpus.
+// No embeddings required — good enough for a small, mostly-static corpus.
 
-import knowledge from "./knowledge.json";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-export interface KnowledgeChunk {
-  id: string;
-  source: string;
-  title: string;
-  text: string;
-}
-
-const CHUNKS = knowledge as KnowledgeChunk[];
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CHUNKS = JSON.parse(
+  readFileSync(join(__dirname, "..", "lib", "knowledge.json"), "utf8"),
+);
 
 // Common Persian stopwords to keep scoring focused on meaningful terms.
 const STOPWORDS = new Set([
@@ -20,7 +17,7 @@ const STOPWORDS = new Set([
   "هر", "چه", "چی", "ما", "شما", "آیا", "بود", "باید", "همه", "نیز", "طور",
 ]);
 
-function normalizeFa(input: string): string {
+function normalizeFa(input) {
   return input
     .replace(/ي/g, "ی")
     .replace(/ك/g, "ک")
@@ -35,7 +32,7 @@ function normalizeFa(input: string): string {
     .toLowerCase();
 }
 
-function tokenize(input: string): string[] {
+function tokenize(input) {
   return normalizeFa(input)
     .split(/[^\p{L}\p{N}]+/u)
     .filter((t) => t.length >= 2 && !STOPWORDS.has(t));
@@ -48,15 +45,22 @@ const INDEX = CHUNKS.map((chunk) => ({
   body: normalizeFa(chunk.text),
 }));
 
-export interface RetrievedChunk extends KnowledgeChunk {
-  score: number;
+function countOccurrences(haystack, needle) {
+  if (!needle) return 0;
+  let count = 0;
+  let idx = haystack.indexOf(needle);
+  while (idx !== -1) {
+    count += 1;
+    idx = haystack.indexOf(needle, idx + needle.length);
+  }
+  return count;
 }
 
-export function retrieve(query: string, topK = 4): RetrievedChunk[] {
+export function retrieve(query, topK = 4) {
   const terms = [...new Set(tokenize(query))];
   if (!terms.length || !INDEX.length) return [];
 
-  const scored: RetrievedChunk[] = [];
+  const scored = [];
   for (const entry of INDEX) {
     let score = 0;
     for (const term of terms) {
@@ -73,17 +77,6 @@ export function retrieve(query: string, topK = 4): RetrievedChunk[] {
   return scored.slice(0, topK);
 }
 
-function countOccurrences(haystack: string, needle: string): number {
-  if (!needle) return 0;
-  let count = 0;
-  let idx = haystack.indexOf(needle);
-  while (idx !== -1) {
-    count += 1;
-    idx = haystack.indexOf(needle, idx + needle.length);
-  }
-  return count;
-}
-
-export function knowledgeSize(): number {
+export function knowledgeSize() {
   return CHUNKS.length;
 }

@@ -5,11 +5,15 @@ plist.xlsx
 __pycache__/
 *.py[cod]
 
-# Node / Cloudflare
+# Node
 node_modules/
 .wrangler/
 .dev.vars
+.env
 seed-employees.sql
+
+# Local SQLite database
+data/
 
 # IDE
 .idea/

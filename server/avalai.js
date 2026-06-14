@@ -1,22 +1,6 @@
 // AvalAI (OpenAI-compatible) chat completions client.
 
-import type { Env } from "./types";
-
-export interface ChatMessage {
-  role: "system" | "user" | "assistant";
-  content: string;
-}
-
-export interface ChatResult {
-  ok: boolean;
-  content: string;
-  error?: string;
-}
-
-export async function chatCompletion(
-  env: Env,
-  messages: ChatMessage[],
-): Promise<ChatResult> {
+export async function chatCompletion(env, messages) {
   const key = (env.AVALAI_API_KEY || "").trim();
   if (!key) {
     return { ok: false, content: "", error: "AVALAI_API_KEY تنظیم نشده است" };
@@ -40,12 +24,10 @@ export async function chatCompletion(
       return { ok: false, content: "", error: `AvalAI error ${resp.status}: ${text.slice(0, 300)}` };
     }
 
-    const data = (await resp.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-    };
+    const data = await resp.json();
     const content = data?.choices?.[0]?.message?.content ?? "";
     return { ok: true, content };
   } catch (err) {
-    return { ok: false, content: "", error: String((err as Error)?.message ?? err) };
+    return { ok: false, content: "", error: String(err?.message ?? err) };
   }
 }

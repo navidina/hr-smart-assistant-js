@@ -1,24 +1,24 @@
 {
-  "name": "smartassistant-cloudflare",
+  "name": "hr-smart-assistant",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Cloudflare Pages frontend + TypeScript Functions backend for the HR Smart Assistant.",
+  "description": "HR Smart Assistant — Node.js + Express + SQLite backend with a static frontend.",
   "scripts": {
-    "dev": "wrangler pages dev",
-    "deploy": "wrangler pages deploy",
-    "typecheck": "tsc --noEmit",
-    "db:init": "wrangler d1 execute smartassistant --local --file=./schema.sql",
-    "db:init:remote": "wrangler d1 execute smartassistant --remote --file=./schema.sql",
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "db:seed": "node server/load-sql.js",
     "employees:build-sql": "node tools/import-employees.mjs plist.xlsx seed-employees.sql",
-    "employees:load:remote": "wrangler d1 execute smartassistant --remote --file=./seed-employees.sql",
+    "employees:load": "node server/load-sql.js seed-employees.sql",
     "knowledge:build": "node tools/build-knowledge.mjs"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241230.0",
     "mammoth": "^1.12.0",
-    "typescript": "^5.7.2",
-    "wrangler": "^3.95.0",
     "xlsx": "^0.18.5"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2"
   }
 }
